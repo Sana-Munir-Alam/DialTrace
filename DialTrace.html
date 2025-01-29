@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DialTrace System 6</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
+        body {
+            font-family: "Michroma", sans-serif;
+            margin: 0;
+            padding: 0;
+            background: url('https://s3.envato.com/files/223471572/Infographic%20HUD%20Lines%20Preview.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+        }
+        .overlay {
+            position: fixed; /* Covers the entire viewport */
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: -1; /* Ensures it sits above the background */
+        }
+        /* Main Content*/
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 100vh;
+            padding: 0 20px;
+        }
+        /*Logo and Button redirection part*/
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            top: -5%;
+            left: 0;
+            width: 100%;
+            z-index: 1;
+        }
+        .logo {
+            margin: 0 auto;
+            width: 300px;
+        }
+        .info-text{
+            flex: 1;
+            text-align: left;
+            padding: 20px;
+        }
+        .info-text h4{
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .info-text p{
+            display: flex;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .form-container {
+            flex: 1;
+            background: #9cbdc2;
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .title {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #0056b3;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: calc(100% - 23px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #0056b3;
+            color: #fff;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background: #00408a;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-left: 5px solid #2e7d32;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            display: none;
+            align-items: flex-start;
+        }
+        .result h3 {
+            margin: 0 0 10px;
+        }
+        .result-details {
+            flex: 3;
+        }
+        .result-image {
+            flex: 1;
+            padding-left: 20px;
+        }
+        .result-image img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+
+        /* Media Query for responsiveness */
+        @media (max-width: 786px) {
+            
+            .container {
+                flex-direction: column;
+                align-items: center; /* Center align all items */
+                padding: 20px;
+                height: auto; /* Allow the height to adjust dynamically */
+            }
+            .logo {
+                margin: 0 auto;
+                width: 200px;
+            }
+            .info-text{
+                margin-top: 20%;
+            }
+            .info-text h4{
+                font-size: 2.5rem;
+                text-align: center; /* Center the text */
+                margin-bottom: 20px; /* Add spacing below the text */
+                order: -1; /* Ensure it appears first at the top */
+            }
+            .info-text p{
+                font-size: 1rem;
+                text-align: center; /* Center the text */
+                margin-bottom: 20px; /* Add spacing below the text */
+                order: -1; /* Ensure it appears first at the top */
+            }
+            .form-container {
+                max-width: 400px; /* Limit the maximum width */
+                margin: 0 auto; /* Center the form horizontally */
+            }
+            .result {
+                flex-direction: column; /* Stack the result details and image */
+                align-items: center; /* Center align the result contents */
+            }
+            .result-image {
+                padding-left: 0;
+                margin-top: 15px;
+                text-align: center; /* Center the image */
+            }
+        }
+        /* Loading Page Styling */
+        .loading-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: linear-gradient(to right, #112458, #362753, #0f1c27);
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+            justify-content: center;
+            color: #191654;
+            z-index:3;
+        }
+        #svg {
+            margin-left: 70px;
+            height: 150px;
+            width: 150px;
+            stroke: white;
+            fill-opacity: 0;
+            stroke-width: 3px;
+            stroke-dasharray: 4500;
+            animation: draw 8s ease;
+        }
+        @keyframes draw {
+        0% {
+            stroke-dashoffset: 4500;
+        }
+        100% {
+            stroke-dashoffset: 0;
+        }
+        }
+        .name-container {
+            height: 30px;
+            overflow: hidden;
+        }
+        .logo-name {
+            color: #fff;
+            font-size: 20px;
+            letter-spacing: 12px;
+            text-transform: uppercase;
+            margin-left: 20px;
+            font-weight: bolder;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="top-bar">
+            <img src="2.png" alt="DialTrace Logo" class="logo">
+        </div>
+        <div class="info-text">
+            <h4>Find the Info</h4>
+            <p>DialTrace System helps you uncover details about the person associated with a phone number.</p>
+        </div>
+        <div class="form-container">
+            <h1 class="title">DialTrace System</h1>
+            <div class="form-group">
+                <label for="phoneNumber">Enter Phone Number:</label>
+                <input type = "text" id="phoneNumber" placeholder = "Phone: 555-123-4567" maxlength="12" oninput="formatPhoneNumber(this)" required>
+            </div>
+            <button class="btn" onclick="searchNumber()">Search</button>
+            <div class="result" id="result">
+                <div class="result-details">
+                    <h3>Search Results</h3>
+                    <p id="resultDetails"></p>
+                </div>
+                <div class="result-image" id="resultImage"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Loading Page-->
+    <div class="loading-page">
+        <svg id="svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path 
+            d="M0 96C0 60.7 28.7 32 64 32l96 0c123.7 0 224 100.3 224 224s-100.3 224-224 224l-96 0c-35.3 0-64-28.7-64-64L0 96zm160 0L64 96l0 320 96 0c88.4 0 160-71.6 160-160s-71.6-160-160-160z">
+        </svg>
+        <div class="name-container">
+            <div class="logo-name">Dial-Trace</div>
+        </div>
+    </div>
+
+    <script>
+        //Loading Page Anime
+        gsap.fromTo(
+        ".loading-page",
+        { opacity: 1 },
+        {
+            opacity: 0,
+            display: "none",
+            duration: 1.5,
+            delay: 3.5,
+        }
+        );
+
+        gsap.fromTo(
+        ".logo-name",
+        {
+            y: 50,
+            opacity: 0,
+        },
+        {
+            y: 0,
+            opacity: 1,
+            duration: 2,
+            delay: 0.5,
+        }
+        );
+
+        //Main Part
+        function formatPhoneNumber(input) {
+            let cleaned = input.value.replace(/\D/g, '');   // Remove all non-digit characters using a regular expression
+            let formatted = ''; // Initialize an empty string to hold the formatted phone number
+
+            // Conditional blocks to format the phone number depending on the number of digits
+            if (cleaned.length <= 3) {
+                formatted = cleaned; // If the number has 3 or fewer digits, just return it as is
+            } else if (cleaned.length <= 6) {
+                formatted = `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;   // Format as XXX-XXX if the number has between 4 and 6 digits
+            } else {
+                formatted = `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;    // Format as XXX-XXX-XXXX if the number has more than 6 digits
+            }
+            input.value = formatted; // Update the input field with the formatted value
+        }
+
+        function searchNumber() {
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const resultDiv = document.getElementById('result');
+            const resultDetails = document.getElementById('resultDetails');
+            const resultImage = document.getElementById('resultImage');
+
+            // Example data for demonstration
+            const phoneData = {
+                '555-123-4567': {
+                    name: 'John Doe',
+                    role: 'Sniper',
+                    location: 'Opposite Building Rooftop',
+                    image: 'https://img.freepik.com/free-vector/cute-yeti-standing-cartoon-vector-icon-illustration-animal-nature-icon-isolated-flat-vector_138676-11432.jpg'
+                },
+                '555-987-6543': {
+                    name: 'Jane Smith',
+                    role: 'Business Owner',
+                    location: 'Downtown Office',
+                }
+            };
+
+            if (phoneData[phoneNumber]) {
+                const data = phoneData[phoneNumber];
+                resultDetails.innerHTML = `
+                    <strong>Name:</strong> ${data.name}<br>
+                    <strong>Role:</strong> ${data.role}<br>
+                    <strong>Location:</strong> ${data.location}<br>
+                `;
+                if (data.image) {
+                    resultImage.innerHTML = `<img src="${data.image}" alt="${data.name}">`;
+                } else {
+                    resultImage.innerHTML = '';
+                }
+                resultDiv.style.display = 'flex';
+            } else {
+                resultDetails.innerHTML = 'No results found for the provided phone number.';
+                resultImage.innerHTML = '';
+                resultDiv.style.display = 'flex';
+            }
+        }
+    </script>
+</body>
+</html>
